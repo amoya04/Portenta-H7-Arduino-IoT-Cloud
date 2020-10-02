@@ -1,54 +1,31 @@
+
 #include <ArduinoIoTCloud.h>
 #include <Arduino_ConnectionHandler.h>
 
-#if defined(BOARD_HAS_WIFI)
-#elif defined(BOARD_HAS_GSM)
-#elif defined(BOARD_HAS_LORA)
-#elif defined(BOARD_HAS_NB)
-#else
-  #error "Arduino IoT Cloud currently only supports MKR1000, MKR WiFi 1010, MKR WAN 1300/1310, MKR NB 1500 and MKR GSM 1400"
-#endif
 
-#define THING_ID "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-#define BOARD_ID "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+const char THING_ID[] = "250a70ea-83d3-479f-af9c-730f53fe6b1a";
 
-void onLedChange();
+const char SSID[]     = SECRET_SSID;    // Network SSID (name)
+const char PASS[]     = SECRET_PASS;    // Network password (use for WPA, or use as key for WEP)
 
-extern float ligth;
-extern float pressure;
-extern float temperatura;
+void onSetAlarmChange();
 
-bool led;
-int potentiometer;
-int seconds;
+float Alt;
+float brightness;
+float Pres;
+float temperatura;
+float setAlarm;
+bool ledRojo;
 
-void initProperties() {
+void initProperties(){
+
   ArduinoCloud.setThingId(THING_ID);
-  ArduinoCloud.addProperty(ligth, READ, 30 * SECONDS, NULL);
-  ArduinoCloud.addProperty(pressure, READ, 30 * SECONDS, NULL);
+  ArduinoCloud.addProperty(brightness, READ, 30 * SECONDS, NULL);
+  ArduinoCloud.addProperty(Pres, READ, 30 * SECONDS, NULL);
   ArduinoCloud.addProperty(temperatura, READ, 30 * SECONDS, NULL);
-//#if defined(BOARD_ESP8266)
-//  ArduinoCloud.setBoardId(BOARD_ID);
-//  ArduinoCloud.setSecretDeviceKey(SECRET_DEVICE_KEY);
-//#endif
-//  ArduinoCloud.setThingId(THING_ID);
-//#if defined(BOARD_HAS_WIFI) || defined(BOARD_HAS_GSM) || defined(BOARD_HAS_NB)
-//  ArduinoCloud.addProperty(led, Permission::Write).onUpdate(onLedChange);
-//  ArduinoCloud.addProperty(potentiometer, Permission::Read).publishOnChange(10);
-//  ArduinoCloud.addProperty(seconds, Permission::Read).publishOnChange(1);
-//#elif defined(BOARD_HAS_LORA)
-//  ArduinoCloud.addProperty(led, 1, READWRITE, ON_CHANGE, onLedChange);
-//  ArduinoCloud.addProperty(potentiometer, 2, READ, ON_CHANGE);
-//  ArduinoCloud.addProperty(seconds, 3, READ, 5 * MINUTES);
-//#endif
+   ArduinoCloud.addProperty(setAlarm, READWRITE, ON_CHANGE, onSetAlarmChange);
+  ArduinoCloud.addProperty(ledRojo, READ, 30 * SECONDS, NULL);
+
 }
 
-#if defined(BOARD_HAS_WIFI)
-  WiFiConnectionHandler ArduinoIoTPreferredConnection(SECRET_SSID, SECRET_PASS);
-#elif defined(BOARD_HAS_GSM)
-  GSMConnectionHandler ArduinoIoTPreferredConnection(SECRET_PIN, SECRET_APN, SECRET_LOGIN, SECRET_PASS);
-#elif defined(BOARD_HAS_LORA)
-  LoRaConnectionHandler ArduinoIoTPreferredConnection(SECRET_APP_EUI, SECRET_APP_KEY, _lora_band::EU868, _lora_class::CLASS_A);
-#elif defined(BOARD_HAS_NB)
-  NBConnectionHandler ArduinoIoTPreferredConnection(SECRET_PIN, SECRET_APN, SECRET_LOGIN, SECRET_PASS);
-#endif
+WiFiConnectionHandler ArduinoIoTPreferredConnection(SSID, PASS);
